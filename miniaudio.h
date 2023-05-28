@@ -11388,6 +11388,11 @@ IMPLEMENTATION
 #ifndef miniaudio_c
 #define miniaudio_c
 
+#include "HAL/PlatformProcess.h"
+#if PLATFORM_WINDOWS
+#include "Windows/AllowWindowsPlatformTypes.h"
+#endif
+
 #include <assert.h>
 #include <limits.h>         /* For INT_MAX */
 #include <math.h>           /* sin(), etc. */
@@ -11543,6 +11548,7 @@ IMPLEMENTATION
     #pragma warning(push)
     #pragma warning(disable:4752)   /* found Intel(R) Advanced Vector Extensions; consider using /arch:AVX */
     #pragma warning(disable:4049)   /* compiler limit : terminating line number emission */
+    #pragma warning(disable:4191)
 #endif
 
 #if defined(MA_X64) || defined(MA_X86)
@@ -32712,9 +32718,9 @@ static ma_result ma_find_best_format__coreaudio(ma_context* pContext, AudioObjec
 
     hasSupportedFormat = MA_FALSE;
     for (iFormat = 0; iFormat < deviceFormatDescriptionCount; ++iFormat) {
-        ma_format format;
-        ma_result formatResult = ma_format_from_AudioStreamBasicDescription(&pDeviceFormatDescriptions[iFormat].mFormat, &format);
-        if (formatResult == MA_SUCCESS && format != ma_format_unknown) {
+        ma_format formatOut;
+        ma_result formatResult = ma_format_from_AudioStreamBasicDescription(&pDeviceFormatDescriptions[iFormat].mFormat, &formatOut);
+        if (formatResult == MA_SUCCESS && formatOut != ma_format_unknown) {
             hasSupportedFormat = MA_TRUE;
             bestDeviceFormatSoFar = pDeviceFormatDescriptions[iFormat].mFormat;
             break;
@@ -91558,6 +91564,10 @@ MA_API void ma_dr_mp3_free(void* p, const ma_allocation_callbacks* pAllocationCa
 /* End globally disabled warnings. */
 #if defined(_MSC_VER)
     #pragma warning(pop)
+#endif
+
+#if PLATFORM_WINDOWS
+#include "Windows/HideWindowsPlatformTypes.h"
 #endif
 
 #endif  /* miniaudio_c */
